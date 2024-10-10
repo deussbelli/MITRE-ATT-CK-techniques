@@ -134,10 +134,11 @@ def user_page():
     conn.close()
 
     static_tasks = [
-        {"title": "1) Зайти на страницу администратора", "description": "Перейдите на страницу администатора и войдите как администратор.", "status": "Not started"},
-        {"title": "2) Сломать таблицу с заданиями", "description": "Попробуйте выполнить SQL-инъекцию и сломать таблицу.", "status": "Not started"},
-        {"title": "3) Заполнить базу пользователей ботами", "description": "Используйте скрипт для заполнения базы данных пользователями-ботами.", "status": "Not started"},
-        {"title": "4) Найти файл secret.txt", "description": "Найдите файл secret.txt и получите спрятанную фразу.", "status": "Not started"}
+        {"title": "1. Login to the admin page", "description": "Go to the admin page and log in as an administrator.", "status": "Not started"},
+        {"title": "2. Break table with users", "description": "Try to perform SQL injection and break the table.", "status": "Not started"},
+        {"title": "3. Populate user database with bots", "description": "Use a script to populate the database with bot users.", "status": "Not started"},
+        {"title": "4. Find secret.txt file", "description": "Find the secret.txt file and get the hidden phrase.", "status": "Not started"},
+        {"title": "5.  Steal session token", "description": "Gain access to user_page without entering any data.", "status": "Not started"}
     ]
 
     if request.method == 'POST':
