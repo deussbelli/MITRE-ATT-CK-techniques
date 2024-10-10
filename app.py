@@ -6,6 +6,7 @@ import random
 import string
 
 app = Flask(__name__)
+app.secret_key = 'supersecretkey'
 SECRET_FILE = 'secret.txt'
 
 def generate_session_token(length=20):
