@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2, h3 {
+            text-align: center;
+            color: #333;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            border-bottom: 2px solid #006699;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #006699;
+            color: #fff;
+        }
+
+        button, input[type="submit"] {
+            background-color: #006699;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin: 5px;
+        }
+
+        button:hover, input[type="submit"]:hover {
+            background-color: #005580;
+        }
+
+        a {
+            color: #006699;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 15px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        form {
+            max-width: 500px;
+            margin: 20px auto;
+        }
+
+        label, input, select {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        input[type="text"], input[type="password"], input[type="datetime-local"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .task-status {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+
+        .started { background-color: #ffd966; }
+        .not-started { background-color: #76c7c0; }
+        .completed { background-color: #93c47d; }
+        .overdue { background-color: #e06666; }
+
+        .error { color: red; text-align: center; }
+        .success { color: green; text-align: center; }
+
+        .static-task {
+            background-color: #f7f9f9;
+            border-left: 5px solid #006699;
+            padding: 10px;
+            margin: 5px 0;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+    <h2>Admin Panel - User Management</h2>
+    <h3>Current Users</h3>
+    <table border="1">
+        <tr>
+            <th>ID</th>
+            <th>Username</th>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+        {% for user in users %}
+        <tr>
+            <td>{{ user[0] }}</td>
+            <td>{{ user[1] }}</td>
+            <td>{{ user[3] }}</td>
+            <td>
+                <a href="{{ url_for('edit_user', user_id=user[0]) }}">Edit</a> |
+                <a href="{{ url_for('delete_user', user_id=user[0]) }}">Delete</a> |
+                <a href="{{ url_for('view_tasks', user_id=user[0]) }}">View Tasks</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+    <h3>Add New User</h3>
+    <form method="post" action="{{ url_for('register') }}">
+        Username: <input type="text" name="username" required><br>
+        Password: <input type="password" name="password" required><br>
+        Role:
+        <select name="role">
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+        </select><br>
+        <input type="submit" value="Add User">
+    </form>
+    <br>
+    <a href="{{ url_for('logout') }}">Logout</a>
+    </div>
+</body>
+</html>

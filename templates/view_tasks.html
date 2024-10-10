@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tasks of {{ username }}</title>
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2, h3 {
+            text-align: center;
+            color: #333;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            border-bottom: 2px solid #006699;
+            padding-bottom: 10px;
+        }
+   
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        ul li {
+            background: #f9f9f9;
+            margin: 10px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        a, button {
+            background-color: #006699;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin-top: 20px;
+            transition: background-color 0.3s ease;
+        }
+
+        a {
+            color: #006699;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 15px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        .task-status {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .started { background-color: #ffd966; }
+        .not-started { background-color: #76c7c0; }
+        .completed { background-color: #93c47d; }
+        .overdue { background-color: #e06666; }
+
+        .task-title {
+            font-weight: bold;
+            font-size: 16px;
+            display: block;
+        }
+
+        .task-time {
+            font-size: 12px;
+            color: #666;
+        }
+
+        .error { color: red; text-align: center; }
+        .success { color: green; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Tasks of {{ username }}</h2>
+        <ul>
+            {% for task in tasks %}
+            <li>
+                <span class="task-status {% if task[3] == 'Started' %}started{% elif task[3] == 'Not started' %}not-started{% elif task[3] == 'Completed' %}completed{% else %}overdue{% endif %}"></span>
+                <span class="task-title">{{ task[1] }}</span>
+                <span>{{ task[2] }} - Status: <b>{{ task[3] }}</b></span><br>
+                <div class="task-time">
+                    <i>Start Time:</i> {{ task[5] }} | <i>End Time:</i> {{ task[6] }}
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+        <a href="{{ url_for('admin_page') }}">Back to Admin Page</a>
+    </div>
+</body>
+</html>

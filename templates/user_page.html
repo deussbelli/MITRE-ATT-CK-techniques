@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2, h3 {
+            text-align: center;
+            color: #333;
+        }
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            border-bottom: 2px solid #006699;
+            padding-bottom: 10px;
+        }
+   
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        ul li {
+            background: #f9f9f9;
+            margin: 10px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        button, input[type="submit"] {
+            background-color: #006699;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin: 5px 0;
+        }
+
+        button:hover, input[type="submit"]:hover {
+            background-color: #005580;
+        }
+
+        a {
+            color: #006699;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 15px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        form {
+            max-width: 500px;
+            margin: 20px auto;
+        }
+
+        label, input, select {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        input[type="text"], input[type="password"], input[type="datetime-local"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .task-status {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+
+        .started { background-color: #ffd966; }
+        .not-started { background-color: #76c7c0; }
+        .completed { background-color: #93c47d; }
+        .overdue { background-color: #e06666; }
+
+        .error { color: red; text-align: center; }
+        .success { color: green; text-align: center; }
+
+        .static-task {
+            background-color: #f7f9f9;
+            border-left: 5px solid #006699;
+            padding: 10px;
+            margin: 5px 0;
+        }
+
+    </style>
+    <script>
+        function toggleTaskForm() {
+            var form = document.getElementById('add-task-form');
+            form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h2>Welcome, {{ username }}</h2>
+        
+        <div style="text-align: center;">
+            <a href="{{ url_for('settings') }}">Settings</a> |
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </div>
+
+        <h3>Your Tasks</h3>
+        <ul>
+            {% for task in tasks %}
+            <li>
+                <span class="task-status {% if task[3] == 'Started' %}started{% elif task[3] == 'Not started' %}not-started{% elif task[3] == 'Completed' %}completed{% else %}overdue{% endif %}"></span>
+                <b>{{ task[1] }}</b>: {{ task[2] }} - Status: {{ task[3] }}<br>
+                <small><i>Start Time:</i> {{ task[5] }} | <i>End Time:</i> {{ task[6] }}</small>
+            </li>
+            {% endfor %}
+        </ul>
+
+        <button onclick="toggleTaskForm()">Add Task</button>
+        <div id="add-task-form" style="display:none; margin-top: 20px;">
+            <h3>Add a New Task</h3>
+            <form method="post">
+                <label>Title</label>
+                <input type="text" name="title" required>
+                <label>Description</label>
+                <input type="text" name="description" required>
+                <label>Status</label>
+                <select name="status" required>
+                    <option value="Started">Started</option>
+                    <option value="Not started">Not started</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Overdue">Overdue</option>
+                </select>
+                <label>Start Time</label>
+                <input type="datetime-local" name="start_time" required>
+                <label>End Time</label>
+                <input type="datetime-local" name="end_time" required>
+                <input type="submit" value="Save Task">
+            </form>
+        </div>
+
+        <h3>Static Tasks</h3>
+        <ul>
+            <li class="static-task">
+                <b>1. Login to the admin page</b>: Go to the admin page and log in as an administrator.<br>
+            </li>
+            <li class="static-task">
+                <b>2. Break table with users</b>: Try to perform SQL injection and break the table.<br>
+            </li>
+            <li class="static-task">
+                <b>3. Populate user database with bots</b>: Use a script to populate the database with bot users.<br>
+            </li>
+            <li class="static-task">
+                <b>4. Find secret.txt file</b>: Find the secret.txt file and get the hidden phrase.<br>
+            </li>
+            <li class="static-task">
+                <b>5. Steal session token</b>: Gain access to user_page without entering any data.<br>
+            </li>
+        </ul>
+
+        <h3>Check Secret Phrase</h3>
+        <form method="post">
+            <label>Enter the hidden phrase:</label>
+            <input type="text" name="secret_phrase" required>
+            <input type="submit" value="Confirm">
+        </form>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+            {% for category, message in messages %}
+                <li class="{% if category == 'success' %}success{% elif category == 'error' %}error{% endif %}">
+                    {{ message }}
+                </li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+        {% endwith %}
+    </div>    
+</body>
+</html>

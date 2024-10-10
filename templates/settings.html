@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Settings</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+        }
+
+        h2, h3 {
+            text-align: center;
+            color: #333;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            border-bottom: 2px solid #006699;
+            padding-bottom: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #006699;
+            color: #fff;
+        }
+
+        button, input[type="submit"] {
+            background-color: #006699;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin: 5px;
+        }
+
+        button:hover, input[type="submit"]:hover {
+            background-color: #005580;
+        }
+
+        a {
+            color: #006699;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 15px;
+        }
+
+        a:hover {
+            text-decoration: underline;
+        }
+
+        form {
+            max-width: 500px;
+            margin: 20px auto;
+        }
+
+        label, input, select {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+        }
+
+        input[type="text"], input[type="password"], input[type="datetime-local"] {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .task-status {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+
+        .started { background-color: #ffd966; }
+        .not-started { background-color: #76c7c0; }
+        .completed { background-color: #93c47d; }
+        .overdue { background-color: #e06666; }
+
+        .error { color: red; text-align: center; }
+        .success { color: green; text-align: center; }
+
+        .static-task {
+            background-color: #f7f9f9;
+            border-left: 5px solid #006699;
+            padding: 10px;
+            margin: 5px 0;
+        }
+
+    </style>
+</head>
+<body>    
+    <div class="container">
+    <h2>Settings for {{ username }}</h2>
+    
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <ul>
+        {% for category, message in messages %}
+            <li class="{% if category == 'error' %}error{% elif category == 'success' %}success{% else %}default{% endif %}">
+                {{ message }}
+            </li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+    {% endwith %}
+    
+    <form method="post">
+        Old Password: <input type="password" name="old_password" required><br>
+        New Username: <input type="text" name="new_username" required><br>
+        New Password: <input type="password" name="new_password" required><br>
+        <input type="submit" value="Update Profile">
+    </form>
+    <br>
+    <a href="{{ url_for('user_page') }}">Back to User Page</a>
+    </div>
+</body>
+</html>
