@@ -19,9 +19,12 @@ def init_db():
     cursor = conn.cursor()
     cursor.execute('''CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, role TEXT)''')
     cursor.execute('''CREATE TABLE IF NOT EXISTS tasks (id INTEGER PRIMARY KEY, title TEXT, description TEXT, status TEXT, assigned_to TEXT, start_time TEXT, end_time TEXT)''')
+    cursor.execute('''CREATE TABLE IF NOT EXISTS comments (id INTEGER PRIMARY KEY, user TEXT, comment TEXT)''')
     cursor.execute('''INSERT OR IGNORE INTO users (id, username, password, role) VALUES (1, "admin", "admin123", "admin")''')
     conn.commit()
     conn.close()
+
+
 
 
 @app.route('/.../.../.../secret.txt')
@@ -74,15 +77,17 @@ def reset_db():
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
     cursor.executescript('''
-    DROP TABLE IF EXISTS users;
-    CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, role TEXT);
-    INSERT INTO users (id, username, password, role) VALUES (1, 'admin', '1', 'admin');
-    INSERT INTO users (id, username, password, role) VALUES (2, 'user1', 'userpass', 'user');
+        DROP TABLE IF EXISTS users;
+        DROP TABLE IF EXISTS tasks;
+        DROP TABLE IF EXISTS comments;
+        CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, role TEXT);
+        CREATE TABLE tasks (id INTEGER PRIMARY KEY, title TEXT, description TEXT, status TEXT, assigned_to TEXT, start_time TEXT, end_time TEXT);
+        CREATE TABLE comments (id INTEGER PRIMARY KEY, user TEXT, comment TEXT);
+        INSERT INTO users (id, username, password, role) VALUES (1, 'admin', 'admin123', 'admin');
     ''')
     conn.commit()
     conn.close()
-    flash("Database has been reset successfully. Admin password set to '1'.", "success")
-    return redirect(url_for('login'))
+    return "Database reset successfully."
 
     
 @app.route('/register', methods=['GET', 'POST'])
@@ -107,12 +112,34 @@ def register():
         return redirect(url_for('login'))
 
     return render_template('register.html')
+
 @app.route('/user_page', methods=['GET', 'POST'])
 def user_page():
     if 'username' not in session:
         return redirect(url_for('login'))
     
-    if request.method == 'POST':
+    conn = sqlite3.connect(DATABASE)
+    cursor = conn.cursor()
+    
+    # Fetch tasks assigned to the user
+    cursor.execute("SELECT * FROM tasks WHERE assigned_to = ?", (session['username'],))
+    tasks = cursor.fetchall()
+    
+    # Fetch comments for the user
+    cursor.execute("SELECT comment FROM comments WHERE user = ?", (session['username'],))
+    comments = cursor.fetchall()
+    conn.close()
+
+    static_tasks = [
+        {"title": "1. Login to the admin page", "description": "Go to the admin page and log in as an administrator.", "status": "Not started"},
+        {"title": "2. Break table with users", "description": "Try to perform SQL injection and break the table.", "status": "Not started"},
+        {"title": "3. Populate user database with bots", "description": "Use a script to populate the database with bot users.", "status": "Not started"},
+        {"title": "4. Find secret.txt file", "description": "Find the secret.txt file and get the hidden phrase.", "status": "Not started"},
+        {"title": "5. Steal session token", "description": "Gain access to user_page without entering any data.", "status": "Not started"}
+    ]
+
+    # Handle new task submission
+    if request.form.get('title') and request.method == 'POST':
         title = request.form['title']
         description = request.form['description']
         status = request.form['status']
@@ -122,45 +149,55 @@ def user_page():
         
         conn = sqlite3.connect(DATABASE)
         cursor = conn.cursor()
-        cursor.execute("INSERT INTO tasks (title, description, status, assigned_to, start_time, end_time) VALUES (?, ?, ?, ?, ?, ?)", (title, description, status, assigned_to, start_time, end_time))
+        cursor.execute("INSERT INTO tasks (title, description, status, assigned_to, start_time, end_time) VALUES (?, ?, ?, ?, ?, ?)", 
+                       (title, description, status, assigned_to, start_time, end_time))
         conn.commit()
         conn.close()
-        flash("Task added successfully!")
+        flash("Task added successfully!", "success")
         return redirect(url_for('user_page'))
 
-    conn = sqlite3.connect(DATABASE)
-    cursor = conn.cursor()
-    cursor.execute("SELECT * FROM tasks WHERE assigned_to = ?", (session['username'],))
-    tasks = cursor.fetchall()
-    conn.close()
-
-    static_tasks = [
-        {"title": "1. Login to the admin page", "description": "Go to the admin page and log in as an administrator.", "status": "Not started"},
-        {"title": "2. Break table with users", "description": "Try to perform SQL injection and break the table.", "status": "Not started"},
-        {"title": "3. Populate user database with bots", "description": "Use a script to populate the database with bot users.", "status": "Not started"},
-        {"title": "4. Find secret.txt file", "description": "Find the secret.txt file and get the hidden phrase.", "status": "Not started"},
-        {"title": "5.  Steal session token", "description": "Gain access to user_page without entering any data.", "status": "Not started"}
-    ]
-
-    if request.method == 'POST':
+    # Handle secret phrase validation
+    if request.form.get('secret_phrase') and request.method == 'POST':
         entered_phrase = request.form.get('secret_phrase')
         if not os.path.exists(SECRET_FILE):
             flash("Secret file not found. Please check the file path.", "error")
-            return render_template('user_page.html', tasks=tasks, static_tasks=static_tasks, username=session['username'])
-        
-        try:
-            with open(SECRET_FILE, 'r', encoding='utf-8') as f:
-                correct_phrase = f.read().strip()
-        except Exception as e:
-            flash(f"Error reading the secret file: {e}", "error")
-            return render_template('user_page.html', tasks=tasks, static_tasks=static_tasks, username=session['username'])
-        
-        if entered_phrase == correct_phrase:
-            flash("Successfully completed, congratulations!", "success")
         else:
-            flash("Incorrect phrase. Try again.", "error")
+            try:
+                with open(SECRET_FILE, 'r', encoding='utf-8') as f:
+                    correct_phrase = f.read().strip()
+            except Exception as e:
+                flash(f"Error reading the secret file: {e}", "error")
+            else:
+                if entered_phrase == correct_phrase:
+                    flash("Successfully completed, congratulations!", "success")
+                else:
+                    flash("Incorrect phrase. Try again.", "error")
 
-    return render_template('user_page.html', tasks=tasks, static_tasks=static_tasks, username=session['username'])
+
+    # Handle new comment submission
+    if request.method == 'POST' and request.form.get('comment'):
+        comment = request.form['comment']
+        conn = sqlite3.connect(DATABASE)
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO comments (user, comment) VALUES (?, ?)", (session['username'], comment))
+        conn.commit()
+        conn.close()
+        flash("Comment added successfully!", "success")
+        return redirect(url_for('user_page'))
+
+
+
+    return render_template('user_page.html', 
+                           tasks=tasks, 
+                           static_tasks=static_tasks, 
+                           comments=comments, 
+                           username=session['username'])
+
+@app.after_request
+def remove_csp(response):
+    response.headers.pop('Content-Security-Policy', None)
+    return response
+
 
 @app.route('/admin_page')
 def admin_page():
@@ -266,3 +303,16 @@ if __name__ == '__main__':
 
 
 
+
+# from http.server import BaseHTTPRequestHandler, HTTPServer
+
+# class StealingServer(BaseHTTPRequestHandler):
+#     def do_GET(self):
+#         print("Stolen token:", self.path)
+#         self.send_response(200)
+#         self.end_headers()
+#         self.wfile.write(b"Token captured")
+
+# server = HTTPServer(('localhost', 5000), StealingServer)
+# print("Attacker server running on http://localhost:5000")
+# server.serve_forever()

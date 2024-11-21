@@ -179,6 +179,19 @@
             </li>
         </ul>
 
+        <h3>Comments</h3>
+        <ul>
+            {% for comment in comments %}
+            <li>{{ comment[0]|safe }}</li>
+            {% endfor %}
+        </ul>
+        <form method="post">
+            <label for="comment">Add a comment:</label>
+            <input type="text" name="comment" id="comment" required>
+            <input type="submit" value="Submit">
+        </form>
+        
+
         <h3>Check Secret Phrase</h3>
         <form method="post">
             <label>Enter the hidden phrase:</label>
